@@ -19,8 +19,10 @@ architecture main of core is
 	
 	component pc is
 		port(
-			clk			:		in		std_logic;	
+			clk			:		in		std_logic;
+			ctrl		:		in		std_logic_vector(10 downto 0);	
 			addr_in		:		in		std_logic_vector(31 downto 0);
+			branch		:		in		std_logic_vector(31 downto 0);
 			pc_out		:		out		std_logic_vector(31 downto 0)
 		);
 	end component;
@@ -54,22 +56,14 @@ architecture main of core is
 		);
 	end component;
 	
-	component branch is
-		port(
-			funct3	:	in		std_logic_vector( 2 downto 0);
-			rs1		:	in		std_logic_vector(31 downto 0);
-			rs2		:	in		std_logic_vector(31 downto 0);
-			en		:	in		std_logic:= '0';
-			taken_br:	out		boolean:= false
-		);
-	end component;
-	
 	component br_pc is
 		port(
-			en		:	in	boolean;
+			op		:	in	std_logic_vector(10 downto 0);
+			rs1		:	in	std_logic_vector(31 downto 0);
+			rs2		:	in	std_logic_vector(31 downto 0);
 			pc		:	in	std_logic_vector(31 downto 0);
 			imm		:	in	std_logic_vector(31 downto 0);
-			br_addr	:	out std_logic_vector(31 downto 0)
+			br_addr	:	out std_logic_vector(31 downto 0):= (others => 'Z')
 		);
 	end component;
 	
@@ -103,7 +97,6 @@ architecture main of core is
 	signal rs2_data_s	: std_logic_vector(31 downto 0);
 	
 	signal taken_br_s	: boolean;
-	signal en_br_s		: std_logic;
 	
 	signal data_mem_s		: std_logic_vector(31 downto 0):= (others => 'Z');
 		
@@ -115,7 +108,9 @@ begin
 	
 	pc1:	pc port map(
 		clk 	=> 		clk_s,
-		addr_in =>		addr_s,
+		ctrl	=>		opcode_s,
+		branch  =>		addr_s,
+		addr_in =>		pc_s,
 		pc_out	=>		pc_s
 	);
 	
@@ -141,20 +136,14 @@ begin
 		rs1_data => rs1_data_s,
 		rs2_data => rs2_data_s 
 	);
-	
-	br1:	branch port map(
-		funct3	 =>	instr_s(14 downto 12),
-		rs1		 =>	rs1_data_s,
-		rs2		 =>	rs2_data_s,
-		en		 => en_br_s,
-		taken_br => taken_br_s
-	);
-	
-	br2:	br_pc port map(
-		en		=>	taken_br_s,
+		
+	br1:	br_pc port map(
+		op		=>	opcode_s,
+		rs1		=>	rs1_data_s,
+		rs2		=>	rs2_data_s,
 		pc		=>	pc_s,
 		imm		=>	imm_s,
-		br_addr =>  addr_s
+		br_addr	=>	addr_s
 	);
 
 
@@ -167,9 +156,6 @@ begin
 		result      => result_s
 	);
 	
-	-- Branch control
-	en_br_s <= '1' when opcode_s(6 downto 0) = "1100011" else '0';
-
 end architecture;
 
 

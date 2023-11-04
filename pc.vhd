@@ -6,7 +6,9 @@ use IEEE.numeric_std.ALL;
 entity pc is
 	port(
 		clk			:		in		std_logic;	
-		addr_in		:		in		std_logic_vector(31 downto 0);
+		ctrl		:		in		std_logic_vector(10 downto 0);
+		addr_in		:		in		std_logic_vector(31 downto 0):= (others => 'L'); -- pc_out
+		branch		:		in		std_logic_vector(31 downto 0);
 		pc_out		:		out		std_logic_vector(31 downto 0):= (others => 'Z')
 	);
 end entity;
@@ -15,21 +17,30 @@ end entity;
 architecture main of pc is
 
 	signal inc : std_logic_vector(31 downto 0):= "00000000000000000000000000000100";
-	signal Q   : std_logic_vector(31 downto 0):= "00000000000000000000000000000000";
+	signal Q   : std_logic_vector(31 downto 0):= (others => '0');
+	signal Himp: std_logic_vector(31 downto 0):= (others => 'Z');
 
 begin
 
-	ff:	process(clk, addr_in)
-		begin
-			if(addr_in'event and addr_in /= "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ") then
-				Q <= addr_in;
-			end if;
-			
-			if(clk'event and clk = '1') then
-				pc_out <= Q;
-				Q      <= std_logic_vector(signed(Q) + signed(inc));
+	sum:process(clk, branch)
+		begin 
+			if(clk'event and clk = '0') then
+				if(branch = Himp) then
+					Q <= std_logic_vector(signed(addr_in) + signed(inc));
+				else
+					Q <= branch;
+				end if;
 			end if;
 	end process;
+
+
+	ff:	process(clk)
+		begin
+			if(clk'event and clk = '1') then
+				pc_out <= Q;
+			end if;
+	end process;
+
 
 end architecture;
 
