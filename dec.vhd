@@ -35,7 +35,8 @@ begin
 	funct7		<=	instr(31 downto 25);
 	
 	is_r_type	<=	true when instr(6 downto 0) = "0110011" else false;
-	is_i_type	<=	true when instr(6 downto 0) = "0010011" or instr(6 downto 0) = "1100111"else false;
+	is_i_type	<=	true when instr(6 downto 0) = "0010011" or 
+				instr(6 downto 0) = "1100111" or instr(6 downto 0) = "0000011"else false;
 	is_s_type	<=	true when instr(6 downto 0) = "0100011" else false;
 	is_b_type	<=	true when instr(6 downto 0) = "1100011" else false;
 	is_u_type	<=	true when instr(6 downto 0) = "0110111" or instr(6 downto 0) = "0010111"else false;

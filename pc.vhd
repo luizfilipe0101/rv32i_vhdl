@@ -9,6 +9,7 @@ entity pc is
 		ctrl		:		in		std_logic_vector(10 downto 0);
 		addr_in		:		in		std_logic_vector(31 downto 0):= (others => 'L'); -- pc_out
 		branch		:		in		std_logic_vector(31 downto 0);
+		jump		:		in		std_logic_vector(31 downto 0);
 		pc_out		:		out		std_logic_vector(31 downto 0):= (others => 'Z')
 	);
 end entity;
@@ -25,14 +26,18 @@ begin
 	sum:process(clk, branch)
 		begin 
 			if(clk'event and clk = '0') then
-				if(branch = Himp) then
-					Q <= std_logic_vector(signed(addr_in) + signed(inc));
-				else
+				if(branch /= Himp) then
 					Q <= branch;
+				
+				elsif(jump /= Himp) then
+					Q <= jump;
+				else
+					Q <= std_logic_vector(signed(addr_in) + signed(inc));
+					
 				end if;
 			end if;
 	end process;
-
+	
 
 	ff:	process(clk)
 		begin

@@ -31,7 +31,6 @@ begin
 			  	  jalr when "1100111",
 			  	  (others => 'Z') when others;
 			
-
 	rd_out <= std_logic_vector(signed(pc) + signed(inc)) when 
 			(opcode(6 downto 0) = "1101111" or opcode(6 downto 0) = "1100111") else (others => 'Z');
 

@@ -25,7 +25,7 @@ architecture main of br_pc is
 	signal bgeu : boolean;
 	
 	signal taken_br : boolean;
-	signal teste	: boolean;
+	signal check	: boolean;
 	
 	signal target	: std_logic_vector(31 downto 0);
 
@@ -47,9 +47,9 @@ begin
 					bgeu  when "1111100011",
 					false when others;
 					
-	teste <= taken_br and op(6 downto 0) = "1100011";
+	check <= taken_br and op(6 downto 0) = "1100011";
 	
 	target  <= std_logic_vector(signed(imm) - signed(pc)) when op(6 downto 0) = "1100011" else (others => 'Z');
-	br_addr <= std_logic_vector(signed(target) + signed(pc)) when teste = true else (others => 'Z');
+	br_addr <= std_logic_vector(signed(target) + signed(pc)) when check = true else (others => 'Z');
 
 end architecture;
